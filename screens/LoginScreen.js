@@ -6,18 +6,56 @@ import {
   Image,
   KeyboardAvoidingView,
   TextInput,
-  Pressable
+  Pressable,
+  Alert
 } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import amazonLogo from '../assets/amazon-logo.png'
 import { MaterialIcons } from '@expo/vector-icons'
 import { AntDesign } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigation = useNavigation()
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken')
+
+        if (token) {
+          navigation.replace('Main')
+        }
+      } catch (err) {
+        console.log('error message', err)
+      }
+    }
+    checkLoginStatus()
+  }, [])
+
+  const handleLogin = () => {
+    const user = {
+      email: email,
+      password: password
+    }
+
+    axios
+      .post('http://localhost:5000/login', user)
+      .then((response) => {
+        console.log(response)
+        Alert.alert('Login Succesfull')
+        setEmail('')
+        setPassword('')
+        navigation.replace('Main')
+      })
+      .catch((error) => {
+        Alert.alert('Login failed', error.message)
+      })
+  }
 
   return (
     <SafeAreaView
@@ -121,6 +159,7 @@ const LoginScreen = () => {
 
         <View style={{ marginTop: 80 }}>
           <Pressable
+            onPress={handleLogin}
             style={{
               width: 200,
               backgroundColor: '#FEBE10',

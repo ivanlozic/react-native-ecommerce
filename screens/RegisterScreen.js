@@ -6,7 +6,8 @@ import {
   Pressable,
   Image,
   KeyboardAvoidingView,
-  TextInput
+  TextInput,
+  Alert
 } from 'react-native'
 import React, { useState } from 'react'
 import amazonLogo from '../assets/amazon-logo.png'
@@ -14,12 +15,35 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { AntDesign } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
+import axios from 'axios'
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const navigation = useNavigation()
+
+  const handleRegister = () => {
+    const user = {
+      name: name,
+      email: email,
+      password: password
+    }
+
+    axios
+      .post('http://localhost:5000/register', user)
+      .then((response) => {
+        console.log(response)
+        Alert.alert('Registration Succesfull')
+        setName('')
+        setEmail('')
+        setPassword('')
+      })
+      .catch((error) => {
+        Alert.alert('Registration failed', error.message)
+      })
+  }
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: 'white', alignItems: 'center' }}
@@ -38,7 +62,7 @@ const RegisterScreen = () => {
               color: '#041E42'
             }}
           >
-            Login in to your Account
+            Register your account
           </Text>
         </View>
 
@@ -63,7 +87,7 @@ const RegisterScreen = () => {
               />
 
               <TextInput
-                value={password}
+                value={name}
                 onChangeText={(text) => setName(text)}
                 style={{
                   color: 'gray',
@@ -148,13 +172,11 @@ const RegisterScreen = () => {
             alignItems: 'center',
             justifyContent: 'space-between'
           }}
-        >
-          <Text>Keep me logged in</Text>
-          <Text style={{ fontWeight: '500' }}>Forgot Password</Text>
-        </View>
+        ></View>
 
-        <View style={{ marginTop: 80 }}>
+        <View style={{ marginTop: 30 }}>
           <Pressable
+            onPress={handleRegister}
             style={{
               width: 200,
               backgroundColor: '#FEBE10',
@@ -178,7 +200,7 @@ const RegisterScreen = () => {
 
           <Pressable
             onPress={() => navigation.navigate('Login')}
-            style={{ marginTop: 15 }}
+            style={{ marginTop: 25 }}
           >
             <Text>Already have an account? Sign in</Text>
           </Pressable>
